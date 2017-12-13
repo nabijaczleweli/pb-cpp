@@ -24,6 +24,7 @@
 #include <iostream>
 
 
-void pb::henlo() {
+int pb::henlo() {
 	std::cout << "pb::henlo()\n";
+	return 0;
 }

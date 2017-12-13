@@ -1,6 +1,6 @@
 language: generic
 sudo: false
-cache: true
+cache: apt
 git:
   submodules: false
 

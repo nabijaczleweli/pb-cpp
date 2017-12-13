@@ -21,9 +21,4 @@
 
 
 #define CATCH_CONFIG_MAIN
-// #include <catch.hpp>
-#include <iostream>
-
-int main() {
-	std::cout << "Henlo\n";
-}
+#include <catch.hpp>

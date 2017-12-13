@@ -24,8 +24,8 @@ include configMakefile
 
 
 LDAR := $(PIC) $(LNCXXAR) -L$(OUTDIR) $(foreach l, ,-L$(BLDDIR)$(l)) $(foreach l,$(OS_LD_LIBS),-l$(l))
-VERAR := $(foreach l,PB_CPP,-D$(l)_VERSION='$($(l)_VERSION)')
-INCAR := $(foreach l,$(foreach l, ,ext/$(l)/include),-isystem$(l))
+VERAR := $(foreach l,PB_CPP CATCH2,-D$(l)_VERSION='$($(l)_VERSION)')
+INCAR := $(foreach l,$(foreach l,Catch2/single_include $(foreach l,,$(l)/include),ext/$(l)),-isystem$(l))
 TEST_SOURCES := $(sort $(wildcard tests/*.cpp tests/**/*.cpp tests/**/**/*.cpp tests/**/**/**/*.cpp))
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 
@@ -51,7 +51,7 @@ $(OUTDIR)$(DLL_PREFIX)pb-cpp$(DLL) : $(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%$(OBJ),
 	$(CXX) $(CXXAR) -shared -o$@ $^ $(PIC) $(LDAR)
 
 $(OUTDIR)pb-cpp-tests$(EXE) : static $(patsubst tests/%.cpp,$(BLDDIR)test_obj/%$(OBJ),$(TEST_SOURCES)) $(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%$(OBJ),$(SOURCES))
-	$(CXX) $(CXXAR) -o$@ $(filter-out static,$^) $(PIC) $(LDAR) -lpb-cpp
+	$(CXX) $(CXXAR) -o$@ $(filter-out static,$^) $(PIC) $(LDAR)
 
 
 $(OBJDIR)%$(OBJ) : $(SRCDIR)%.cpp

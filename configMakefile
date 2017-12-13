@@ -37,6 +37,7 @@ endif
 # TODO: uncomment when there's a first tag
 # PB_CPP_VERSION := "$(patsubst v%,%,$(shell git describe --tags --abbrev=0))"
 PB_CPP_VERSION := "0.1.0"
+CATCH2_VERSION := "$(patsubst v%,%,$(shell git -C ext/Catch2 describe --tags --abbrev=0))"
 
 OBJ := .o
 ARCH := .a
