@@ -1,0 +1,52 @@
+language: generic
+sudo: false
+cache: true
+git:
+  submodules: false
+
+matrix:
+  include:
+    - env: LANGUAGE=C++ CXX=g++-5 CC=gcc-5
+      addons:
+        apt:
+          packages:
+            - g++-5
+          sources: &sources
+            - r-packages-trusty
+            - llvm-toolchain-trusty
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-3.9
+            - llvm-toolchain-trusty-4.0
+            - llvm-toolchain-trusty-5.0
+    - env: LANGUAGE=C++ CXX=g++-6 CC=gcc-6
+      addons:
+        apt:
+          packages:
+            - g++-6
+          sources: *sources
+    - env: LANGUAGE=C++ CXX="clang++-3.9 -stdlib=libc++" CC=clang-3.9
+      addons:
+        apt:
+          packages:
+            - clang-3.9
+            - libc++-dev
+          sources: *sources
+    - env: LANGUAGE=C++ CXX="clang++-4.0 -stdlib=libc++" CC=clang-4.0
+      addons:
+        apt:
+          packages:
+            - clang-4.0
+            - libc++-dev
+          sources: *sources
+    - env: LANGUAGE=C++ CXX="clang++-5.0 -stdlib=libc++" CC=clang-5.0
+      addons:
+        apt:
+          packages:
+            - clang-5.0
+            - libc++-dev
+          sources: *sources
+
+install:
+  - git submodule update --init --recursive
+
+script: make

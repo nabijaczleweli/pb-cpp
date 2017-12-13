@@ -1,0 +1,27 @@
+version: 0.1.0-{build}
+
+skip_tags: false
+
+platform: x64
+configuration: Release
+
+clone_folder: C:\pb-cpp
+
+install:
+  - set PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
+  -
+  - bash -lc "pacman --needed --noconfirm -Sy pacman-mirrors"
+  - bash -lc "pacman --noconfirm -Syyu"
+  - bash -lc "pacman --noconfirm -Su"
+
+build: off
+build_script:
+  - git submodule update --init --recursive
+  - make
+
+test: off
+
+notifications:
+  - provider: Email
+    to: nabijaczleweli@gmail.com
+    on_build_status_changed: true

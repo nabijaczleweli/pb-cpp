@@ -1,0 +1,51 @@
+{
+	"build_systems":
+	[
+		{
+			"cmd": "make -j10",
+			"name": "Build and test pb-cpp",
+			"working_dir": "$project_path"
+		},
+		{
+			"cmd": "make -j10 clean",
+			"name": "Clean pb-cpp",
+			"working_dir": "$project_path"
+		}
+	],
+	"folders":
+	[
+		{
+			"name": "Source",
+			"path": "src"
+		},
+		{
+			"name": "Includes",
+			"path": "include"
+		},
+		{
+			"name": "Tests",
+			"path": "tests"
+		},
+		{
+			"name": "External code",
+			"path": "ext"
+		},
+		{
+			"file_include_patterns":
+			[
+				"*Makefile*",
+				"*.yml",
+			],
+			"folder_exclude_patterns":
+			[
+				"*"
+			],
+			"name": "Build files",
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"tab_size": 2
+	}
+}
