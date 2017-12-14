@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 
-// Copyright (c) 2017 Lounge<C++>
+// Copyright (c) 2017 nabijaczleweli
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include <catch.hpp>
-
-#include "../include/pb-cpp/progressbar.hpp"
+#pragma once
 
 
-TEST_CASE("pb::henlo()", "[progressbar]") {
-	REQUIRE(pb::henlo() == 0);
+#include <cstdint>
+
+
+namespace pb {
+	/// Output type format, indicates what unit will be used in the speed box.
+	enum class unit_t : std::uint8_t {
+		none,
+		byte,
+	};
 }
