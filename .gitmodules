@@ -2,3 +2,7 @@
 	path = ext/Catch2
 	url = https://github.com/catchorg/Catch2
 	branch = v2.0.1
+[submodule "ext/optional-lite"]
+	path = ext/optional-lite
+	url = https://github.com/martinmoene/optional-lite
+	branch = v2.3.0
