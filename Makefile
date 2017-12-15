@@ -27,11 +27,12 @@ LDAR := $(PIC) $(LNCXXAR) -L$(OUTDIR) $(foreach l, ,-L$(BLDDIR)$(l)) $(foreach l
 VERAR := $(foreach l,PB_CPP CATCH2,-D$(l)_VERSION='$($(l)_VERSION)')
 INCAR := $(foreach l,$(foreach l,Catch2/single_include $(foreach l,optional-lite,$(l)/include),ext/$(l)),-isystem$(l))
 TEST_SOURCES := $(sort $(wildcard tests/*.cpp tests/**/*.cpp tests/**/**/*.cpp tests/**/**/**/*.cpp))
+BUILD_TEST_SOURCES := $(sort $(wildcard build-tests/*.cpp build-tests/**/*.cpp build-tests/**/**/*.cpp build-tests/**/**/**/*.cpp))
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 
-.PHONY : all clean static dll tests run-tests
+.PHONY : all clean static dll tests no-build-tests run-tests
 
-all : static dll tests run-tests
+all : static dll tests no-build-tests run-tests
 
 clean :
 	rm -rf $(OUTDIR)
@@ -42,6 +43,7 @@ run-tests : $(OUTDIR)pb-cpp-tests$(EXE)
 static : $(OUTDIR)libpb-cpp$(ARCH)
 dll : $(OUTDIR)$(DLL_PREFIX)pb-cpp$(DLL)
 tests : $(OUTDIR)pb-cpp-tests$(EXE)
+no-build-tests : $(subst build-tests/,$(BLDDIR)build_test_obj/,$(subst .cpp,$(OBJ),$(BUILD_TEST_SOURCES)))
 
 
 $(OUTDIR)libpb-cpp$(ARCH) : $(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%$(OBJ),$(SOURCES))
@@ -61,3 +63,9 @@ $(OBJDIR)%$(OBJ) : $(SRCDIR)%.cpp
 $(BLDDIR)test_obj/%$(OBJ) : tests/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXAR) $(INCAR) -c -o$@ $^
+
+$(BLDDIR)build_test_obj/%$(OBJ) : build-tests/%.cpp
+	@mkdir -p $(dir $@)
+	! $(CXX) $(CXXAR) $(INCAR) -c -o$@ $^ 2>$(subst $(OBJ),.err_out,$@)
+	grep -q "$(shell grep ERROR_MUST_CONTAIN $^ | sed -e 's/#define ERROR_MUST_CONTAIN "//' -e 's/"$$//')" $(subst $(OBJ),.err_out,$@)
+	mv $(subst $(OBJ),.err_out,$@) $@

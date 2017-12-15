@@ -27,6 +27,10 @@
 			"path": "tests"
 		},
 		{
+			"name": "Build tests",
+			"path": "build-tests"
+		},
+		{
 			"name": "External code",
 			"path": "ext"
 		},
