@@ -236,6 +236,7 @@ namespace pb {
 	private:
 		void format(const char * fmt, std::size_t len) noexcept;
 
+		std::size_t calc_width();
 		void draw();
 	};
 }

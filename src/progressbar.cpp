@@ -23,8 +23,11 @@
 #include "../include/pb-cpp/progressbar.hpp"
 #include "../include/pb-cpp/defaults.hpp"
 #include <algorithm>
+#include <cmath>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <utility>
 
 
@@ -248,6 +251,120 @@ pb::progressbar & pb::progressbar::operator=(progressbar && other) {
 }
 
 
+// TODO: implement
+static nonstd::optional<std::size_t> terminal_width() {
+	return {69};
+}
+std::size_t pb::progressbar::calc_width() {
+	if(bar_width)
+		return bar_width.value();
+	else
+		return terminal_width().value_or(80);
+}
+
+
 void pb::progressbar::draw() {
-	*output << "henlo\n";
+	const auto now = std::chrono::steady_clock::now();
+	if(bar_max_refresh_rate && now - last_refresh_time < *bar_max_refresh_rate)
+		return;
+
+	const auto time_elapsed = now - start_time;
+	const auto speed        = current / static_cast<double>(std::chrono::duration_cast<std::chrono::seconds>(time_elapsed).count());
+	const auto width        = calc_width();
+
+	std::size_t prefix_length = (show_message ? start_message.size() : 0) +  //
+	                            (show_tick ? 1 + 1 : 0);
+	std::size_t body_length = 0;
+	std::ostringstream additional_prefix;
+	std::ostringstream suffix;
+
+	*output << '\r';
+
+	// message box
+	if(show_message)
+		*output << start_message;
+
+	// counter box
+	if(show_counter) {
+		switch(unit) {
+			case unit_t::none:
+				additional_prefix << current << " / " << total;
+				break;
+			case unit_t::byte:
+				// TODO: implement kb_fmt
+				// additional_prefix << kb_fmt!(current) << " / " << kb_fmt!(total);
+				break;
+		}
+		additional_prefix << ' ';
+
+		*output << additional_prefix.str();
+	}
+
+	// tick box
+	if(show_tick)
+		*output << tick_chars[cur_tick_idx] << ' ';
+
+	// precent box
+	if(show_percent) {
+		const auto percentage = total == 0 ? 0 : ((100 * current) / total);
+		suffix << ' ' << std::setw(2) << percentage << "% ";
+	}
+
+	// speed box
+	if(show_speed && !std::isinf(speed)) {
+		switch(unit) {
+			case unit_t::none:
+				// 2 decimal places
+				suffix << std::round(speed * 100) / 100;
+				break;
+			case unit_t::byte:
+				// TODO: implement kb_fmt
+				// suffix << &format !("{}/s ", kb_fmt !(speed));
+				break;
+		}
+		suffix << "/s ";
+	}
+
+	// time left box
+	if(show_time_left && current > 0 && total > current) {
+		const auto left = 1. / speed * static_cast<double>(total - current);
+		if(left < 60)
+			suffix << std::round(left) << 's';
+		else
+			suffix << std::round(left / 60) << 'm';
+	}
+
+	// bar box
+	if(show_bar) {
+		const auto p = prefix_length + additional_prefix.tellp() + suffix.tellp() + 3;
+		if(p < width) {
+			const auto size                    = width - p;
+			const std::size_t bar_filler_count = std::ceil((current / static_cast<double>(total)) * size);
+			if(size >= bar_filler_count) {
+				*output << bar.start;
+
+				const auto bar_remainder_count = size - bar_filler_count;
+				*output << std::setw(bar_filler_count - 1) << std::setfill(bar.current) << "";
+				if(bar_remainder_count > 0 && bar_filler_count > 0)
+					*output << bar.current_n;
+				else
+					*output << bar.current;
+
+				*output << std::setw(bar_remainder_count) << std::setfill(bar.remain) << "";
+				*output << bar.end << ' ';
+
+				body_length += 1 + bar_filler_count + bar_remainder_count + 1 + 1;
+			}
+		}
+	}
+
+	*output << suffix.str();
+
+	// pad
+	const std::size_t full_width = prefix_length + additional_prefix.tellp() + body_length + suffix.tellp();
+	if(full_width < width)
+		*output << std::setw(width - full_width) << std::setfill(' ') << "";
+
+	output->flush();
+	last_refresh_time = std::chrono::steady_clock::now();
 }
