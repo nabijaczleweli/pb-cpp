@@ -9,6 +9,8 @@
 !tests/**
 !build-tests
 !build-tests/**
+!examples
+!examples/**
 !.git*
 !.clang-format
 !*.yml

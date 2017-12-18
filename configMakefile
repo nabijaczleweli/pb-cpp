@@ -46,6 +46,7 @@ CXXAR := -O3 -fomit-frame-pointer -std=c++14 -pedantic -Wall -Wextra -pipe $(INC
 CCAR := -O3 -fomit-frame-pointer -std=c11 -pipe $(PIC)
 
 OUTDIR := out/
-BLDDIR := out/build/
+BLDDIR := $(OUTDIR)build/
 OBJDIR := $(BLDDIR)obj/
+XPLDIR := $(OUTDIR)examples/
 SRCDIR := src/

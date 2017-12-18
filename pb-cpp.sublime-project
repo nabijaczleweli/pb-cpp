@@ -31,6 +31,10 @@
 			"path": "build-tests"
 		},
 		{
+			"name": "Examples",
+			"path": "examples"
+		},
+		{
 			"name": "External code",
 			"path": "ext"
 		},
