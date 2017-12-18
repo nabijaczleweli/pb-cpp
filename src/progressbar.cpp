@@ -22,6 +22,7 @@
 
 #include "../include/pb-cpp/progressbar.hpp"
 #include "../include/pb-cpp/defaults.hpp"
+#include "../include/pb-cpp/util.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -291,8 +292,7 @@ void pb::progressbar::draw() {
 				additional_prefix << current << " / " << total;
 				break;
 			case unit_t::byte:
-				// TODO: implement kb_fmt
-				// additional_prefix << kb_fmt!(current) << " / " << kb_fmt!(total);
+				additional_prefix << pb::util::make_human_readable(current) << " / " << pb::util::make_human_readable(total);
 				break;
 		}
 		additional_prefix << ' ';
@@ -318,8 +318,7 @@ void pb::progressbar::draw() {
 				suffix << std::round(speed * 100) / 100;
 				break;
 			case unit_t::byte:
-				// TODO: implement kb_fmt
-				// suffix << &format !("{}/s ", kb_fmt !(speed));
+				suffix << pb::util::make_human_readable(speed);
 				break;
 		}
 		suffix << "/s ";
