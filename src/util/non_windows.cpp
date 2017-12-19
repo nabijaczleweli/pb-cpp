@@ -20,27 +20,26 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#pragma once
+#ifndef _WIN32
 
 
-#include <cstdint>
-#include <nonstd/optional.hpp>
-#include <ostream>
+#include "../../include/pb-cpp/util.hpp"
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
 
 
-namespace pb {
-	namespace util {
-		/// Write out a human-readable representation of a file size.
-		///
-		/// Stolen from [http](https://github.com/thecoshman/http/blob/112e35f88c9e08158839d1f3f80a9ac841e990da/src/util/mod.rs#L212-L235).
-		struct human_readable {
-			std::size_t size;
-		};
-		std::ostream & operator<<(std::ostream & out, human_readable hr);
-		human_readable make_human_readable(std::size_t size);
+nonstd::optional<std::size_t> pb::util::terminal_width() {
+	if(!isatty(STDOUT_FILENO))
+		return nonstd::nullopt;
 
-
-		/// Get the terminal window's width or `nullopt` in case of error or stdout not being tied to terminal.
-		nonstd::optional<std::size_t> terminal_width();
-	}
+	winsize ws{};
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+	if(ws.ws_col > 0)
+		return ws.ws_col;
+	else
+		return nonstd::nullopt;
 }
+
+
+#endif

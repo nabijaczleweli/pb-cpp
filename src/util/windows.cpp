@@ -20,27 +20,44 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#pragma once
+#ifdef _WIN32
 
 
-#include <cstdint>
-#include <nonstd/optional.hpp>
-#include <ostream>
+#include "../../include/pb-cpp/util.hpp"
+
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
 
 
-namespace pb {
-	namespace util {
-		/// Write out a human-readable representation of a file size.
-		///
-		/// Stolen from [http](https://github.com/thecoshman/http/blob/112e35f88c9e08158839d1f3f80a9ac841e990da/src/util/mod.rs#L212-L235).
-		struct human_readable {
-			std::size_t size;
-		};
-		std::ostream & operator<<(std::ostream & out, human_readable hr);
-		human_readable make_human_readable(std::size_t size);
+struct handle_data {
+	HANDLE handle;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+};
+
+static nonstd::optional<handle_data> get_handle();
 
 
-		/// Get the terminal window's width or `nullopt` in case of error or stdout not being tied to terminal.
-		nonstd::optional<std::size_t> terminal_width();
-	}
+nonstd::optional<std::size_t> pb::util::terminal_width() {
+	const auto handle = get_handle();
+	if(handle)
+		return {static_cast<std::size_t>(handle->csbi.srWindow.Right - handle->csbi.srWindow.Left)};
+	else
+		return nonstd::nullopt;
 }
+
+
+static nonstd::optional<handle_data> get_handle() {
+	const auto hand = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi{};
+	if(GetConsoleScreenBufferInfo(hand, &csbi))
+		return handle_data{hand, csbi};
+	else
+		return nonstd::nullopt;
+}
+
+
+#endif

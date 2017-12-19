@@ -252,15 +252,11 @@ pb::progressbar & pb::progressbar::operator=(progressbar && other) {
 }
 
 
-// TODO: implement
-static nonstd::optional<std::size_t> terminal_width() {
-	return {69};
-}
 std::size_t pb::progressbar::calc_width() {
 	if(bar_width)
 		return bar_width.value();
 	else
-		return terminal_width().value_or(80);
+		return pb::util::terminal_width().value_or(80);
 }
 
 

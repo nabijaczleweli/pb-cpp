@@ -1,7 +1,5 @@
 # Terminal progress bar for C++ [![TravisCI Build Status](https://travis-ci.org/nabijaczleweli/pb-cpp.svg?branch=master)](https://travis-ci.org/nabijaczleweli/pb-cpp) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/7c1ghw38fowefi3s/branch/master?svg=true)](https://ci.appveyor.com/project/nabijaczleweli/pb-cpp/branch/master) [![Licence](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
-Console progress bar for C++ inspired from [pb](https://github.com/a8m/pb).
-
-Or, you know, get an average frame from a video.
+Console progress bar for C++ inspired by [pb](https://github.com/a8m/pb).
 
 ## Examples
 
