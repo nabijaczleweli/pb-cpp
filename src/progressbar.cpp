@@ -123,12 +123,12 @@ void pb::progressbar::format(const char * fmt, std::size_t len) noexcept {
 
 void pb::progressbar::tick_format(const char * fmt) {
 	tick_chars = fmt;
-	show_tick  = true;
+	show_tick  = !tick_chars.empty();
 }
 
 void pb::progressbar::tick_format(std::string fmt) {
 	tick_chars = std::move(fmt);
-	show_tick  = true;
+	show_tick  = !tick_chars.empty();
 }
 
 
@@ -174,7 +174,8 @@ void pb::progressbar::max_refresh_rate() {
 
 void pb::progressbar::tick() {
 	if(current <= total) {
-		cur_tick_idx = (cur_tick_idx + 1) % tick_chars.size();
+		if(!tick_chars.empty())
+			cur_tick_idx = (cur_tick_idx + 1) % tick_chars.size();
 		draw();
 	}
 }
@@ -270,7 +271,7 @@ void pb::progressbar::draw() {
 	const auto width        = calc_width();
 
 	std::size_t prefix_length = (show_message ? start_message.size() : 0) +  //
-	                            (show_tick ? 1 + 1 : 0);
+	                            ((show_tick && !tick_chars.empty()) ? 1 + 1 : 0);
 	std::size_t body_length = 0;
 	std::ostringstream additional_prefix;
 	std::ostringstream suffix;
@@ -297,7 +298,7 @@ void pb::progressbar::draw() {
 	}
 
 	// tick box
-	if(show_tick)
+	if(show_tick && !tick_chars.empty())
 		*output << tick_chars[cur_tick_idx] << ' ';
 
 	// precent box

@@ -28,7 +28,7 @@
 template <class FwdItr>
 void pb::progressbar::tick_format(FwdItr begin, FwdItr end) {
 	tick_chars = {begin, end};
-	show_tick  = true;
+	show_tick  = !tick_chars.empty();
 }
 
 

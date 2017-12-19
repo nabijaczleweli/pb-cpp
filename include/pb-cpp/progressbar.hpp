@@ -97,7 +97,31 @@ namespace pb {
 
 		/// Set custom format for the overall bar, default is `pb::defaults::bar_format`, a.k.a. `"[=>-]"`.
 		///
-		/// TODO: lay out format and meaning.
+		/// The bar format is as follows:
+		///
+		/// | Character ID |           Meaning           | Default |
+		/// |--------------|-----------------------------|---------|
+		/// |      `0`     |          bar opener         |   '['   |
+		/// |      `1`     |        progress done        |   '='   |
+		/// |      `2`     | done -> not done transition |   '>'   |
+		/// |      `3`     |      progress not done      |   '-'   |
+		/// |      `4`     |          bar closer         |   ']'   |
+		///
+		/// Or, in other words:
+		///
+		/// ```plaintext
+		/// 011111111111111123333333333333333333334
+		/// ^^~~~~~~~~~~~~~^^^~~~~~~~~~~~~~~~~~~~^^
+		/// | progress done |  progress not done  |
+		/// |               |                     |
+		/// opener          transition            closer
+		/// ```
+		///
+		/// For default format:
+		///
+		/// ```plaintext
+		/// [===============>---------------------]
+		/// ```
 		///
 		/// # Examples
 		///
@@ -106,14 +130,18 @@ namespace pb {
 		/// pb::progressbar bar(count);
 		/// bar.format("<#}_>");
 		/// ```
+		///
+		/// Yields:
+		///
+		/// ```plaintext
+		/// <###############}_____________________>
+		/// ```
 		void format(const char * fmt) noexcept;
 		void format(const std::string & fmt) noexcept;
 
 		/// Set ticker format for the bar, default is `pb::defaults::tick_format`, a.k.a. `"\|/-"`.
 		///
-		/// The format is not bounded to any length and will simply cycle through all characters.
-		///
-		/// TODO: how does that work with 0-length formats?
+		/// The format is not bounded to any non-zero length and will simply cycle through all characters.
 		///
 		/// # Examples
 		///

@@ -30,7 +30,6 @@ using namespace std::literals;
 int main() {
 	const auto count = 30u;
 	pb::progressbar bar(count * 10);
-	bar.tick_format("\\|/-");
 	bar.format("|#--|");
 	bar.show_tick      = true;
 	bar.show_speed     = false;
@@ -52,5 +51,5 @@ int main() {
 		}
 	}
 
-	//pb.finish_println("done!");
+	// pb.finish_println("done!");
 }
