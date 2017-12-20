@@ -20,21 +20,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "pb-cpp/progressbar.hpp"
-#include <thread>
-
-
-using namespace std::literals;
-
+#include <pb-cpp/progressbar.hpp>
+#include <fstream>
 
 int main() {
-	pb::progressbar bar(10000);
-	bar.max_refresh_rate(1s);
+	std::ifstream in_file("/usr/share/dict/words", std::ios::binary);
+	const auto file_size = std::ifstream("/usr/share/dict/words", std::ios::ate | std::ios::binary).tellg();
 
-	for(auto i = 0u; i < 10000; ++i) {
-		++bar;
-		std::this_thread::sleep_for(1ms);
-	}
+	std::ofstream out_file("copy-words", std::ios::binary);
 
+	pb::progressbar bar(file_size);
+	bar.unit = pb::unit_t::byte;
+
+	char buf[4096];
+	do {
+		in_file.read(buf, sizeof buf);
+		out_file.write(buf, in_file.gcount());
+		bar += in_file.gcount();
+	} while(in_file.gcount() == sizeof buf);
 	bar.finish();
 }

@@ -20,20 +20,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "pb-cpp/progressbar.hpp"
+#include <pb-cpp/progressbar.hpp>
 #include <thread>
-
-
 using namespace std::literals;
 
-
 int main() {
-	pb::progressbar bar(10000);
-	bar.max_refresh_rate(1s);
+	const auto count = 1000u;
+	pb::progressbar bar(count);
+	bar.format("<#} >");
 
-	for(auto i = 0u; i < 10000; ++i) {
+	for(auto i = 0u; i < count; ++i) {
 		++bar;
-		std::this_thread::sleep_for(1ms);
+		std::this_thread::sleep_for(20ms);
 	}
 
 	bar.finish();

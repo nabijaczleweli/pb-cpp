@@ -58,12 +58,12 @@ namespace pb {
 
 		std::ostream * output;
 
+		bool is_finish;
+
 	public:
 		unit_t unit;
 		std::size_t total;
 
-		bool is_finish;
-		bool is_multibar;
 		bool show_bar;
 		bool show_speed;
 		bool show_percent;
@@ -254,6 +254,11 @@ namespace pb {
 		/// ```
 		progressbar & operator++();
 
+    /// Finish the bar by saturating the progress and redrawing it for the last time, or replacing it with the specified string.
+    void finish();
+    void finish(const char * repl);
+    void finish(const std::string & repl);
+
 
 		progressbar(const progressbar & other);
 		progressbar(progressbar && other);
@@ -266,6 +271,8 @@ namespace pb {
 
 		std::size_t calc_width();
 		void draw();
+		void finish_draw(bool will_override);
+		void finish_with_replace(const char * repl, std::size_t length);
 	};
 }
 

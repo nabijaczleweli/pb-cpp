@@ -41,10 +41,9 @@ pb::progressbar::progressbar(std::size_t t, std::ostream & o)
         cur_tick_idx(0),                                      //
         current(0),                                           //
         output(std::addressof(o)),                            //
+        is_finish(false),                                     //
         unit(unit_t::none),                                   //
         total(t),                                             //
-        is_finish(false),                                     //
-        is_multibar(false),                                   //
         show_bar(true),                                       //
         show_speed(true),                                     //
         show_percent(true),                                   //
@@ -66,10 +65,9 @@ pb::progressbar::progressbar(const progressbar & other)
         bar_width(other.bar_width),                        //
         start_message(other.start_message),                //
         output(other.output),                              //
+        is_finish(other.is_finish),                        //
         unit(other.unit),                                  //
         total(other.total),                                //
-        is_finish(other.is_finish),                        //
-        is_multibar(other.is_multibar),                    //
         show_bar(other.show_bar),                          //
         show_speed(other.show_speed),                      //
         show_percent(other.show_percent),                  //
@@ -89,10 +87,9 @@ pb::progressbar::progressbar(progressbar && other)
         bar_width(std::move(other.bar_width)),                        //
         start_message(std::move(other.start_message)),                //
         output(std::move(other.output)),                              //
+        is_finish(std::move(other.is_finish)),                        //
         unit(std::move(other.unit)),                                  //
         total(std::move(other.total)),                                //
-        is_finish(std::move(other.is_finish)),                        //
-        is_multibar(std::move(other.is_multibar)),                    //
         show_bar(std::move(other.show_bar)),                          //
         show_speed(std::move(other.show_speed)),                      //
         show_percent(std::move(other.show_percent)),                  //
@@ -200,6 +197,19 @@ pb::progressbar & pb::progressbar::operator++() {
 }
 
 
+void pb::progressbar::finish() {
+	finish_draw(false);
+}
+
+void pb::progressbar::finish(const char * repl) {
+	finish_with_replace(repl, std::strlen(repl));
+}
+
+void pb::progressbar::finish(const std::string & repl) {
+	finish_with_replace(repl.c_str(), repl.size());
+}
+
+
 pb::progressbar & pb::progressbar::operator=(const progressbar & other) {
 	start_time           = other.start_time;
 	last_refresh_time    = other.last_refresh_time;
@@ -211,10 +221,9 @@ pb::progressbar & pb::progressbar::operator=(const progressbar & other) {
 	bar_width            = other.bar_width;
 	start_message        = other.start_message;
 	output               = other.output;
+	is_finish            = other.is_finish;
 	unit                 = other.unit;
 	total                = other.total;
-	is_finish            = other.is_finish;
-	is_multibar          = other.is_multibar;
 	show_bar             = other.show_bar;
 	show_speed           = other.show_speed;
 	show_percent         = other.show_percent;
@@ -237,10 +246,9 @@ pb::progressbar & pb::progressbar::operator=(progressbar && other) {
 	bar_width            = std::move(other.bar_width);
 	start_message        = std::move(other.start_message);
 	output               = std::move(other.output);
+	is_finish            = std::move(other.is_finish);
 	unit                 = std::move(other.unit);
 	total                = std::move(other.total);
-	is_finish            = std::move(other.is_finish);
-	is_multibar          = std::move(other.is_multibar);
 	show_bar             = std::move(other.show_bar);
 	show_speed           = std::move(other.show_speed);
 	show_percent         = std::move(other.show_percent);
@@ -363,4 +371,37 @@ void pb::progressbar::draw() {
 
 	output->flush();
 	last_refresh_time = std::chrono::steady_clock::now();
+}
+
+
+void pb::progressbar::finish_draw(bool will_override) {
+	if(is_finish)
+		return;
+
+	auto redraw = false;
+
+	if(bar_max_refresh_rate && std::chrono::steady_clock::now() - last_refresh_time < bar_max_refresh_rate) {
+		bar_max_refresh_rate = nonstd::nullopt;
+		redraw               = true;
+	}
+
+	if(current < total) {
+		current = total;
+		redraw  = true;
+	}
+
+	if(redraw && !will_override)
+		draw();
+
+	is_finish = true;
+}
+
+
+void pb::progressbar::finish_with_replace(const char * repl, std::size_t length) {
+	finish_draw(true);
+
+	*output << '\r' << repl;
+	*output << std::setw(calc_width() - length) << std::setfill(' ') << "";
+
+	output->flush();
 }

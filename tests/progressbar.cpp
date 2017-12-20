@@ -82,8 +82,6 @@ TEST_CASE("pb::progressbar::tick_format() -- show_tick", "[progressbar]") {
 
 
 void check_default_config(const pb::progressbar & bar) {
-	REQUIRE(bar.is_finish == false);
-	REQUIRE(bar.is_multibar == false);
 	REQUIRE(bar.show_bar == true);
 	REQUIRE(bar.show_speed == true);
 	REQUIRE(bar.show_percent == true);

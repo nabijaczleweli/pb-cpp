@@ -3,25 +3,26 @@ Console progress bar for C++ inspired by [pb](https://github.com/a8m/pb).
 
 ## Examples
 
-TODO: adapt to C++
+TODO: adapt multibar to C++
 
-1. simple example
+1. Simple example
 
-```rust
-extern crate pbr;
+```cpp
+#include <pb-cpp/progressbar.hpp>
+#include <thread>
+using namespace std::literals;
 
-use pbr::ProgressBar;
-use std::thread;
+int main() {
+	const auto count = 1000u;
+	pb::progressbar bar(count);
+	bar.format("<#} >");
 
-fn main() {
-    let count = 1000;
-    let mut pb = ProgressBar::new(count);
-    pb.format("╢▌▌░╟");
-    for _ in 0..count {
-        pb.inc();
-        thread::sleep_ms(200);
-    }
-    pb.finish_print("done");
+	for(auto i = 0u; i < count; ++i) {
+		++bar;
+		std::this_thread::sleep_for(200ms);
+	}
+
+	bar.finish();
 }
 ```
 
@@ -34,57 +35,60 @@ use pbr::MultiBar;
 use std::time::Duration;
 
 fn main() {
-    let mut mb = MultiBar::new();
-    let count = 100;
-    mb.println("Application header:");
+	let mut mb = MultiBar::new();
+	let count = 100;
+	mb.println("Application header:");
 
-    let mut p1 = mb.create_bar(count);
-    let _ = thread::spawn(move || {
-        for _ in 0..count {
-            p1.inc();
-            thread::sleep(Duration::from_millis(100));
-        }
-        // notify the multibar that this bar finished.
-        p1.finish();
-    });
+	let mut p1 = mb.create_bar(count);
+	let _ = thread::spawn(move || {
+		for _ in 0..count {
+			p1.inc();
+			thread::sleep(Duration::from_millis(100));
+		}
+		// notify the multibar that this bar finished.
+		p1.finish();
+	});
 
-    mb.println("add a separator between the two bars");
+	mb.println("add a separator between the two bars");
 
-    let mut p2 = mb.create_bar(count * 2);
-    let _ = thread::spawn(move || {
-        for _ in 0..count * 2 {
-            p2.inc();
-            thread::sleep(Duration::from_millis(100));
-        }
-        // notify the multibar that this bar finished.
-        p2.finish();
-    });
+	let mut p2 = mb.create_bar(count * 2);
+	let _ = thread::spawn(move || {
+		for _ in 0..count * 2 {
+			p2.inc();
+			thread::sleep(Duration::from_millis(100));
+		}
+		// notify the multibar that this bar finished.
+		p2.finish();
+	});
 
-    // start listen to all bars changes.
-    // this is a blocking operation, until all bars will finish.
-    // to ignore blocking, you can run it in a different thread.
-    mb.listen();
+	// start listen to all bars changes.
+	// this is a blocking operation, until all bars will finish.
+	// to ignore blocking, you can run it in a different thread.
+	mb.listen();
 }
 ```
 
-3. Broadcast writing(simple file copying)
+3. Simple file copy
 
-```rust
-#![feature(io)]
-extern crate pbr;
+```cpp
+#include <pb-cpp/progressbar.hpp>
+#include <fstream>
 
-use std::io::copy;
-use std::io::prelude::*;
-use std::fs::File;
-use pbr::{ProgressBar, Units};
+int main() {
+	std::ifstream in_file("/usr/share/dict/words", std::ios::binary);
+	const auto file_size = std::ifstream("/usr/share/dict/words", std::ios::ate | std::ios::binary).tellg();
 
-fn main() {
-    let mut file = File::open("/usr/share/dict/words").unwrap();
-    let n_bytes = file.metadata().unwrap().len() as usize;
-    let mut pb = ProgressBar::new(n_bytes);
-    pb.set_units(Units::Bytes);
-    let mut handle = File::create("copy-words").unwrap().broadcast(&mut pb);
-    copy(&mut file, &mut handle).unwrap();
-    pb.finish_print("done");
+	std::ofstream out_file("copy-words", std::ios::binary);
+
+	pb::progressbar bar(file_size);
+	bar.unit = pb::unit_t::byte;
+
+	char buf[4096];
+	do {
+		in_file.read(buf, sizeof buf);
+		out_file.write(buf, in_file.gcount());
+		bar += in_file.gcount();
+	} while(in_file.gcount() == sizeof buf);
+	bar.finish();
 }
 ```

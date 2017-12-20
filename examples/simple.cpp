@@ -22,6 +22,7 @@
 
 #include "pb-cpp/progressbar.hpp"
 #include <random>
+#include <iostream>
 #include <thread>
 
 
@@ -36,5 +37,6 @@ int main() {
 	for(auto i = 0u; i < count; ++i, ++bar)
 		std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng)));
 
-	// pb.finish_println("done!");
+	bar.finish("done!");
+	std::cout << '\n';
 }

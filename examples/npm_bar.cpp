@@ -22,6 +22,7 @@
 
 #include "pb-cpp/progressbar.hpp"
 #include <thread>
+#include <iostream>
 
 
 using namespace std::literals;
@@ -51,5 +52,6 @@ int main() {
 		}
 	}
 
-	// pb.finish_println("done!");
+	bar.finish("done!");
+	std::cout << '\n';
 }
