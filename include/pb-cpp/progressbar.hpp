@@ -260,11 +260,11 @@ namespace pb {
     void finish(const std::string & repl);
 
 
-		progressbar(const progressbar & other);
-		progressbar(progressbar && other);
+		progressbar(const progressbar & other) = default;
+		progressbar(progressbar && other) = default;
 
-		progressbar & operator=(const progressbar & other);
-		progressbar & operator=(progressbar && other);
+		progressbar & operator=(const progressbar & other) = default;
+		progressbar & operator=(progressbar && other) = default;
 
 	private:
 		void format(const char * fmt, std::size_t len) noexcept;

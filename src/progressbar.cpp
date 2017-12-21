@@ -54,50 +54,6 @@ pb::progressbar::progressbar(std::size_t t, std::ostream & o)
 	format(defaults::bar_format);
 }
 
-pb::progressbar::progressbar(const progressbar & other)
-      : start_time(other.start_time),                      //
-        last_refresh_time(other.last_refresh_time),        //
-        bar_max_refresh_rate(other.bar_max_refresh_rate),  //
-        bar(other.bar),                                    //
-        tick_chars(other.tick_chars),                      //
-        cur_tick_idx(other.cur_tick_idx),                  //
-        current(other.current),                            //
-        bar_width(other.bar_width),                        //
-        start_message(other.start_message),                //
-        output(other.output),                              //
-        is_finish(other.is_finish),                        //
-        unit(other.unit),                                  //
-        total(other.total),                                //
-        show_bar(other.show_bar),                          //
-        show_speed(other.show_speed),                      //
-        show_percent(other.show_percent),                  //
-        show_counter(other.show_counter),                  //
-        show_time_left(other.show_time_left),              //
-        show_tick(other.show_tick),                        //
-        show_message(other.show_message) {}
-
-pb::progressbar::progressbar(progressbar && other)
-      : start_time(std::move(other.start_time)),                      //
-        last_refresh_time(std::move(other.last_refresh_time)),        //
-        bar_max_refresh_rate(std::move(other.bar_max_refresh_rate)),  //
-        bar(std::move(other.bar)),                                    //
-        tick_chars(std::move(other.tick_chars)),                      //
-        cur_tick_idx(std::move(other.cur_tick_idx)),                  //
-        current(std::move(other.current)),                            //
-        bar_width(std::move(other.bar_width)),                        //
-        start_message(std::move(other.start_message)),                //
-        output(std::move(other.output)),                              //
-        is_finish(std::move(other.is_finish)),                        //
-        unit(std::move(other.unit)),                                  //
-        total(std::move(other.total)),                                //
-        show_bar(std::move(other.show_bar)),                          //
-        show_speed(std::move(other.show_speed)),                      //
-        show_percent(std::move(other.show_percent)),                  //
-        show_counter(std::move(other.show_counter)),                  //
-        show_time_left(std::move(other.show_time_left)),              //
-        show_tick(std::move(other.show_tick)),                        //
-        show_message(std::move(other.show_message)) {}
-
 
 void pb::progressbar::format(const char * fmt) noexcept {
 	format(fmt, std::strlen(fmt));
@@ -199,65 +155,17 @@ pb::progressbar & pb::progressbar::operator++() {
 
 void pb::progressbar::finish() {
 	finish_draw(false);
+	output->flush();  // Speszol empty flush for multibar
 }
 
 void pb::progressbar::finish(const char * repl) {
 	finish_with_replace(repl, std::strlen(repl));
+	output->flush();  // Speszol empty flush for multibar
 }
 
 void pb::progressbar::finish(const std::string & repl) {
 	finish_with_replace(repl.c_str(), repl.size());
-}
-
-
-pb::progressbar & pb::progressbar::operator=(const progressbar & other) {
-	start_time           = other.start_time;
-	last_refresh_time    = other.last_refresh_time;
-	bar_max_refresh_rate = other.bar_max_refresh_rate;
-	bar                  = other.bar;
-	tick_chars           = other.tick_chars;
-	cur_tick_idx         = other.cur_tick_idx;
-	current              = other.current;
-	bar_width            = other.bar_width;
-	start_message        = other.start_message;
-	output               = other.output;
-	is_finish            = other.is_finish;
-	unit                 = other.unit;
-	total                = other.total;
-	show_bar             = other.show_bar;
-	show_speed           = other.show_speed;
-	show_percent         = other.show_percent;
-	show_counter         = other.show_counter;
-	show_time_left       = other.show_time_left;
-	show_tick            = other.show_tick;
-	show_message         = other.show_message;
-
-	return *this;
-}
-
-pb::progressbar & pb::progressbar::operator=(progressbar && other) {
-	start_time           = std::move(other.start_time);
-	last_refresh_time    = std::move(other.last_refresh_time);
-	bar_max_refresh_rate = std::move(other.bar_max_refresh_rate);
-	bar                  = std::move(other.bar);
-	tick_chars           = std::move(other.tick_chars);
-	cur_tick_idx         = std::move(other.cur_tick_idx);
-	current              = std::move(other.current);
-	bar_width            = std::move(other.bar_width);
-	start_message        = std::move(other.start_message);
-	output               = std::move(other.output);
-	is_finish            = std::move(other.is_finish);
-	unit                 = std::move(other.unit);
-	total                = std::move(other.total);
-	show_bar             = std::move(other.show_bar);
-	show_speed           = std::move(other.show_speed);
-	show_percent         = std::move(other.show_percent);
-	show_counter         = std::move(other.show_counter);
-	show_time_left       = std::move(other.show_time_left);
-	show_tick            = std::move(other.show_tick);
-	show_message         = std::move(other.show_message);
-
-	return *this;
+	output->flush();  // Speszol empty flush for multibar
 }
 
 

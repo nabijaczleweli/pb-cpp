@@ -23,7 +23,10 @@
 #pragma once
 
 
+#include <condition_variable>
 #include <cstdint>
+#include <mutex>
+#include <queue>
 #include <nonstd/optional.hpp>
 #include <ostream>
 
@@ -42,5 +45,33 @@ namespace pb {
 
 		/// Get the terminal window's width or `nullopt` in case of error or stdout not being tied to terminal.
 		nonstd::optional<std::size_t> terminal_width();
+
+
+		template <class T>
+		class mpsc {
+		private:
+			std::mutex condvar_back;
+			std::condition_variable condvar;
+			std::mutex lock;
+			std::queue<T> msgs;
+
+		public:
+			mpsc() = default;
+			mpsc(mpsc &&) = default;
+
+			bool empty();
+
+			void push(const T& elem);
+			void push(T && elem);
+			template <class... Args>
+			void emplace(Args &&... args);
+
+			T pop();
+
+			void wait();
+		};
 	}
 }
+
+
+#include "impl/mpsc.inc"
