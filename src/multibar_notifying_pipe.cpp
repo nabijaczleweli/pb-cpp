@@ -23,6 +23,25 @@
 #include "../include/pb-cpp/multibar.hpp"
 
 
+//! Okay so here's the deal: this was much simpler in Rust.
+//!
+//! First, in the Rust version `ProgressBar` is templated over `T: Write`, which means that you can just slam any old custom thing and it'll work.
+//!
+//! Second, Rust has a much simpler I/O model, consisting of two functions instead of fifty.
+//!
+//! But that means that the Rust version colludes all writes, which inhibits performace.
+//!
+//! So, in this wonderful piece of code (tm) we override `streambuf::sync()`,
+//! which, if cppreference isn't lying to me, is the function called on `ostream::flush()`.
+//!
+//! Therein, we steal the data accumulated so far via `stringbuf` and send it to the channel provided by `multibar`.
+//!
+//! This means, that this whole shebang is transparent and we've only restricted performance
+//! to requiring a flush after every *full write* and an empty flush on `finish()`.
+//!
+//! Or, in other words, it was simpler in Rust, but it's better in C++.
+
+
 pb::detail::multibar_notifying_pipe::multibar_notifying_streambuf::multibar_notifying_streambuf(
     std::size_t l, const std::shared_ptr<pb::util::mpsc<pb::detail::multibar_write_message>> & c)
       : std::stringbuf(std::ios::out), level(l), chan(c) {}
@@ -31,7 +50,7 @@ int pb::detail::multibar_notifying_pipe::multibar_notifying_streambuf::sync() {
 	const auto data = str();
 	str("");
 	chan->emplace(multibar_write_message{
-	    data.empty(),  // finish method flushes without data
+	    data.empty(),  // finish function flushes without data
 	    level,
 	    std::move(data),
 	});

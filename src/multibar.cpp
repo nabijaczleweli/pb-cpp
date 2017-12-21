@@ -43,7 +43,6 @@ pb::progressbar pb::multibar::create_bar(std::size_t total) {
 	println("");
 	bar_pipes.emplace_back(lines.size() - 1, chan);
 	progressbar p(total, bar_pipes.back());
-	// p.is_multibar = true;
 	p = 0;
 	return p;
 }
@@ -59,7 +58,8 @@ void pb::multibar::listen() {
 			const auto msg = chan->pop();
 
 			if(msg.done) {
-				--nbars;
+				if(nbars)
+					--nbars;
 				continue;
 			}
 

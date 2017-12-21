@@ -54,6 +54,62 @@ pb::progressbar::progressbar(std::size_t t, std::ostream & o)
 	format(defaults::bar_format);
 }
 
+pb::progressbar::progressbar(progressbar && other)
+      : start_time(std::move(other.start_time)),                      //
+        last_refresh_time(std::move(other.last_refresh_time)),        //
+        bar_max_refresh_rate(std::move(other.bar_max_refresh_rate)),  //
+        bar(std::move(other.bar)),                                    //
+        tick_chars(std::move(other.tick_chars)),                      //
+        cur_tick_idx(std::move(other.cur_tick_idx)),                  //
+        current(std::move(other.current)),                            //
+        bar_width(std::move(other.bar_width)),                        //
+        start_message(std::move(other.start_message)),                //
+        output(std::move(other.output)),                              //
+        is_finish(std::move(other.is_finish)),                        //
+        unit(std::move(other.unit)),                                  //
+        total(std::move(other.total)),                                //
+        show_bar(std::move(other.show_bar)),                          //
+        show_speed(std::move(other.show_speed)),                      //
+        show_percent(std::move(other.show_percent)),                  //
+        show_counter(std::move(other.show_counter)),                  //
+        show_time_left(std::move(other.show_time_left)),              //
+        show_tick(std::move(other.show_tick)),                        //
+        show_message(std::move(other.show_message)) {
+	other.is_finish = true;
+}
+
+pb::progressbar & pb::progressbar::operator=(progressbar && other) {
+	start_time           = std::move(other.start_time);
+	last_refresh_time    = std::move(other.last_refresh_time);
+	bar_max_refresh_rate = std::move(other.bar_max_refresh_rate);
+	bar                  = std::move(other.bar);
+	tick_chars           = std::move(other.tick_chars);
+	cur_tick_idx         = std::move(other.cur_tick_idx);
+	current              = std::move(other.current);
+	bar_width            = std::move(other.bar_width);
+	start_message        = std::move(other.start_message);
+	output               = std::move(other.output);
+	is_finish            = std::move(other.is_finish);
+	unit                 = std::move(other.unit);
+	total                = std::move(other.total);
+	show_bar             = std::move(other.show_bar);
+	show_speed           = std::move(other.show_speed);
+	show_percent         = std::move(other.show_percent);
+	show_counter         = std::move(other.show_counter);
+	show_time_left       = std::move(other.show_time_left);
+	show_tick            = std::move(other.show_tick);
+	show_message         = std::move(other.show_message);
+
+	other.is_finish = true;
+	return *this;
+}
+
+
+pb::progressbar::~progressbar() {
+	if(!is_finish)
+		output->flush();
+}
+
 
 void pb::progressbar::format(const char * fmt) noexcept {
 	format(fmt, std::strlen(fmt));
@@ -154,18 +210,18 @@ pb::progressbar & pb::progressbar::operator++() {
 
 
 void pb::progressbar::finish() {
-	finish_draw(false);
-	output->flush();  // Speszol empty flush for multibar
+	if(!finish_draw(false))
+		output->flush();  // Speszol empty flush for multibar
 }
 
 void pb::progressbar::finish(const char * repl) {
-	finish_with_replace(repl, std::strlen(repl));
-	output->flush();  // Speszol empty flush for multibar
+	if(!finish_with_replace(repl, std::strlen(repl)))
+		output->flush();  // Speszol empty flush for multibar
 }
 
 void pb::progressbar::finish(const std::string & repl) {
-	finish_with_replace(repl.c_str(), repl.size());
-	output->flush();  // Speszol empty flush for multibar
+	if(!finish_with_replace(repl.c_str(), repl.size()))
+		output->flush();  // Speszol empty flush for multibar
 }
 
 
@@ -282,9 +338,9 @@ void pb::progressbar::draw() {
 }
 
 
-void pb::progressbar::finish_draw(bool will_override) {
+bool pb::progressbar::finish_draw(bool will_override) {
 	if(is_finish)
-		return;
+		return true;
 
 	auto redraw = false;
 
@@ -302,14 +358,16 @@ void pb::progressbar::finish_draw(bool will_override) {
 		draw();
 
 	is_finish = true;
+	return false;
 }
 
 
-void pb::progressbar::finish_with_replace(const char * repl, std::size_t length) {
-	finish_draw(true);
+bool pb::progressbar::finish_with_replace(const char * repl, std::size_t length) {
+	const auto f = finish_draw(true);
 
 	*output << '\r' << repl;
 	*output << std::setw(calc_width() - length) << std::setfill(' ') << "";
 
 	output->flush();
+	return f;
 }

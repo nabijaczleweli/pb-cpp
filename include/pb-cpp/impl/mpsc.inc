@@ -32,33 +32,22 @@ bool pb::util::mpsc<T>::empty() {
 }
 
 
-template <class T>
-void pb::util::mpsc<T>::push(const T & elem) {
-	{
-		std::lock_guard<std::mutex> grd(lock);
-		msgs.push(elem);
+#define PUSH_IMPL(prefix, args, fname, arg)    \
+	template <class T>                           \
+	prefix void pb::util::mpsc<T>::fname(args) { \
+		{                                          \
+			std::lock_guard<std::mutex> grd(lock);   \
+			msgs.fname(arg);                         \
+		}                                          \
+		condvar.notify_one();                      \
 	}
-	condvar.notify_all();
-}
 
-template <class T>
-void pb::util::mpsc<T>::push(T && elem) {
-	{
-		std::lock_guard<std::mutex> grd(lock);
-		msgs.push(std::move(elem));
-	}
-	condvar.notify_all();
-}
+PUSH_IMPL(, const T & elem, push, elem)
+PUSH_IMPL(, T && elem, push, std::move(elem))
+PUSH_IMPL(template <class... Args>, Args &&... args, emplace, std::forward<Args>(args)...)
 
-template <class T>
-template <class... Args>
-void pb::util::mpsc<T>::emplace(Args &&... args) {
-	{
-		std::lock_guard<std::mutex> grd(lock);
-		msgs.emplace(std::forward<Args>(args)...);
-	}
-	condvar.notify_all();
-}
+#undef PUSH_IMPL
+
 
 template <class T>
 T pb::util::mpsc<T>::pop() {

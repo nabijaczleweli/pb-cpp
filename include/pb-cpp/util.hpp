@@ -47,6 +47,7 @@ namespace pb {
 		nonstd::optional<std::size_t> terminal_width();
 
 
+		/// A naïve implementation of a Multiple Producer Single Consumer queue, with a bit too much locking, probably.
 		template <class T>
 		class mpsc {
 		private:
@@ -59,15 +60,19 @@ namespace pb {
 			mpsc() = default;
 			mpsc(mpsc &&) = default;
 
+			/// Lock and check if the queue has no elements in it.
 			bool empty();
 
+			/// Lock and add an element to the end of the queue and notify a listener.
 			void push(const T& elem);
 			void push(T && elem);
 			template <class... Args>
 			void emplace(Args &&... args);
 
+			/// Lock and get an element from the front of the queue.
 			T pop();
 
+			/// Block until an element is added to a queue.
 			void wait();
 		};
 	}

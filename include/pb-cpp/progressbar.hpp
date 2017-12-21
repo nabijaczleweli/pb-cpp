@@ -64,12 +64,40 @@ namespace pb {
 		unit_t unit;
 		std::size_t total;
 
+		/// Whether to display the actual bar.
+		///
+		/// Default: true.
 		bool show_bar;
+
+		/// Whether to display the speed in units per second or minute.
+		///
+		/// Default: true.
 		bool show_speed;
+
+		/// Whether to display the progress %.
+		///
+		/// Default: true.
 		bool show_percent;
+
+		/// Whether to display "current / total".
+		///
+		/// Default: true.
 		bool show_counter;
+
+		/// Whether to show approximate time left.
+		///
+		/// Default: true.
 		bool show_time_left;
+
+		/// Whether to display rolling ticker (see tick_format()).
+		///
+		/// Default: false.
 		bool show_tick;
+
+		/// Whether to display the custom message.
+		///
+		/// Default: true.
+		/// Default message: empty.
 		bool show_message;
 
 
@@ -143,6 +171,8 @@ namespace pb {
 		///
 		/// The format is not bounded to any non-zero length and will simply cycle through all characters.
 		///
+		/// If the provided character sequence is non-empty, sets show_tick.
+		///
 		/// # Examples
 		///
 		/// ```
@@ -160,6 +190,8 @@ namespace pb {
 		/// Call no-arg version, with empty string, or `nullptr` to not display message.
 		///
 		/// All CRs and LFs are replaced with spaces.
+		///
+		/// *Nota bene*: does not set show_message.
 		///
 		/// # Examples
 		///
@@ -254,25 +286,27 @@ namespace pb {
 		/// ```
 		progressbar & operator++();
 
-    /// Finish the bar by saturating the progress and redrawing it for the last time, or replacing it with the specified string.
-    void finish();
-    void finish(const char * repl);
-    void finish(const std::string & repl);
+		/// Finish the bar by saturating the progress and redrawing it for the last time, or replacing it with the specified string.
+		void finish();
+		void finish(const char * repl);
+		void finish(const std::string & repl);
 
+
+		~progressbar();
 
 		progressbar(const progressbar & other) = default;
-		progressbar(progressbar && other) = default;
-
 		progressbar & operator=(const progressbar & other) = default;
-		progressbar & operator=(progressbar && other) = default;
+
+		progressbar(progressbar && other);
+		progressbar & operator=(progressbar && other);
 
 	private:
 		void format(const char * fmt, std::size_t len) noexcept;
 
 		std::size_t calc_width();
 		void draw();
-		void finish_draw(bool will_override);
-		void finish_with_replace(const char * repl, std::size_t length);
+		bool finish_draw(bool will_override);
+		bool finish_with_replace(const char * repl, std::size_t length);
 	};
 }
 

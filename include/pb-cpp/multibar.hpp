@@ -68,7 +68,7 @@ namespace pb {
 	private:
 		std::ostream * output;
 		std::vector<std::string> lines;
-		std::list<pb::detail::multibar_notifying_pipe> bar_pipes;
+		std::list<pb::detail::multibar_notifying_pipe> bar_pipes;  // Must be a list, because it never invalidates pointers
 		std::shared_ptr<pb::util::mpsc<pb::detail::multibar_write_message>> chan;
 
 	public:
@@ -79,94 +79,85 @@ namespace pb {
 		explicit multibar(std::ostream & out);
 
 
-		/// println used to add text lines between the bars.
-		/// for example: you could add a header to your application,
-		/// or text separators between bars.
+		/// Add pure text between bars.
+		///
+		/// For example: you could add a header to your application, or separators between bars.
 		///
 		/// # Examples
 		///
-		/// ```no_run
-		/// use pbr::MultiBar;
+		/// ```
+		/// # const auto count = 1024u;
+		/// pb::multibar mb;
 		///
-		/// let mut mb = MultiBar::new();
 		/// mb.println("Application header:");
+		/// auto bar_1 = mb.create_bar(count);
+		/// mb.println("Text line between bar 1 and bar 2");
+		/// auto bar_2 = mb.create_bar(count);
+		/// mb.println("Text line after bar 2");
 		///
-		/// let mut p1 = MultiBar::create_bar(count);
-		/// // ...
+		/// // Set up bar updaters
 		///
-		/// mb.println("Text line between bar1 and bar2");
-		///
-		/// let mut p2 = MultiBar::create_bar(count);
-		/// // ...
-		///
-		/// mb.println("Text line between bar2 and bar3");
-		///
-		/// // ...
-		/// // ...
 		/// mb.listen();
+		/// ```
+		///
+		/// Will yield:
+		///
+		/// ```plaintext
+		/// Application header:
+		/// [====The=first=progress=bar>------]
+		/// Text line between bar 1 and bar 2
+		/// [====The=second=progress=bar>-----]
+		/// Text line after bar 2
 		/// ```
 		void println(const char * s);
 		void println(std::string s);
 
-		/// create_bar creates new `ProgressBar` with `Pipe` as the writer.
+		/// Create a progress bar for the next level.
 		///
-		/// The ordering of the method calls is important. it means that in
-		/// the first call, you get a progress bar in level 1, in the 2nd call,
-		/// you get a progress bar in level 2, and so on.
-		///
-		/// ProgressBar that finish its work, must call `finish()` (or `finish_print`)
-		/// to notify the `MultiBar` about it.
+		/// While you can, you absolutely shall *not* prolong the life of the the returned `progressbar` (or its copies) past that of this `multibar`:
+		/// special `ostream` instances used by the bars are owned by `multibar` and only live as long as it does.
 		///
 		/// # Examples
 		///
-		/// ```no_run
-		/// use pbr::MultiBar;
+		/// ```
+		/// # const auto count1 = 1024u;
+		/// # const auto count2 = 2048u;
+		/// # const auto count3 = 4096u;
+		/// pb::multibar mb;
 		///
-		/// let mut mb = MultiBar::new();
+		/// // progress bar on level 1
+		/// auto bar_1 = mb.create_bar(count1);
 		///
-		/// // progress bar in level 1
-		/// let mut p1 = MultiBar::create_bar(count1);
-		/// // ...
+		/// // progress bar on level 2
+		/// auto bar_2 = mb.create_bar(count2);
 		///
-		/// // progress bar in level 2
-		/// let mut p2 = MultiBar::create_bar(count2);
-		/// // ...
+		/// // progress bar on level 3
+		/// auto bar_3 = mb.create_bar(count3);
 		///
-		/// // progress bar in level 3
-		/// let mut p3 = MultiBar::create_bar(count3);
+		/// // Set up bar updaters
 		///
-		/// // ...
 		/// mb.listen();
 		/// ```
 		progressbar create_bar(std::size_t total);
 
-
-		/// listen start listen to all bars changes.
+		/// Listen to bar updates.
 		///
-		/// `ProgressBar` that finish its work, must call `finish()` (or `finish_print`)
-		/// to notify the `MultiBar` about it.
-		///
-		/// This is a blocking operation and blocks until all bars will
-		/// finish.
-		/// To ignore blocking, you can run it in a different thread.
+		/// Blocks until all child progress bars are finished.
+		/// If you don't care about that, just run it in a different thread.
 		///
 		/// # Examples
 		///
-		/// ```no_run
-		/// use pbr::MultiBar;
+		/// ```
+		/// pb::multibar mb;
 		///
-		/// let mut mb = MultiBar::new();
-		///
-		/// // ...
 		/// // create some bars here
-		/// // ...
 		///
-		/// thread::spawn(move || {
+		/// std::thread mb_listener([](pb::multibar mb) {
 		///     mb.listen();
 		///     println!("all bars done!");
-		/// });
+		/// }, std::move(mb));
 		///
-		/// // ...
+		/// // Do stuff, but probably don't write to stdout
 		/// ```
 		void listen();
 
