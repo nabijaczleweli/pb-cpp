@@ -43,9 +43,18 @@ static nonstd::optional<handle_data> get_handle();
 nonstd::optional<std::size_t> pb::util::terminal_width() {
 	const auto handle = get_handle();
 	if(handle)
-		return {static_cast<std::size_t>(handle->csbi.srWindow.Right - handle->csbi.srWindow.Left)};
+		return {static_cast<std::size_t>(handle->csbi.srWindow.Right - handle->csbi.srWindow.Left - 1)};
 	else
 		return nonstd::nullopt;
+}
+
+std::ostream & pb::util::operator<<(std::ostream & out, cursor_up_mover cum) {
+	auto handle = get_handle();
+	if(handle) {
+		handle->csbi.dwCursorPosition.Y -= cum.by;
+		SetConsoleCursorPosition(handle->handle, handle->csbi.dwCursorPosition);
+	}
+	return out;
 }
 
 

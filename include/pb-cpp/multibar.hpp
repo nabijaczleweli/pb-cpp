@@ -79,7 +79,7 @@ namespace pb {
 		explicit multibar(std::ostream & out);
 
 
-		/// Add pure text between bars.
+		/// Add pure text or empty line between bars.
 		///
 		/// For example: you could add a header to your application, or separators between bars.
 		///
@@ -109,6 +109,7 @@ namespace pb {
 		/// [====The=second=progress=bar>-----]
 		/// Text line after bar 2
 		/// ```
+		void println();
 		void println(const char * s);
 		void println(std::string s);
 

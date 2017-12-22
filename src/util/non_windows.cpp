@@ -41,5 +41,10 @@ nonstd::optional<std::size_t> pb::util::terminal_width() {
 		return nonstd::nullopt;
 }
 
+std::ostream & pb::util::operator<<(std::ostream & out, cursor_up_mover cum) {
+	out << "\x1B[" << cum.by << +"A";
+	return out;
+}
+
 
 #endif

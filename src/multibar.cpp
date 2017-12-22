@@ -30,6 +30,10 @@ pb::multibar::multibar() : multibar(std::cout) {}
 pb::multibar::multibar(std::ostream & o) : output(std::addressof(o)), chan(std::make_shared<pb::util::mpsc<pb::detail::multibar_write_message>>()) {}
 
 
+void pb::multibar::println() {
+	lines.emplace_back();
+}
+
 void pb::multibar::println(const char * s) {
 	lines.emplace_back(s);
 }
@@ -40,7 +44,7 @@ void pb::multibar::println(std::string s) {
 
 
 pb::progressbar pb::multibar::create_bar(std::size_t total) {
-	println("");
+	lines.emplace_back();
 	bar_pipes.emplace_back(lines.size() - 1, chan);
 	progressbar p(total, bar_pipes.back());
 	p = 0;
@@ -49,8 +53,8 @@ pb::progressbar pb::multibar::create_bar(std::size_t total) {
 
 
 void pb::multibar::listen() {
-	// auto first = true;
-	auto nbars = bar_pipes.size();
+	auto needs_moving = false;
+	auto nbars        = bar_pipes.size();
 	while(nbars) {
 		// receive message
 		chan->wait();
@@ -66,17 +70,11 @@ void pb::multibar::listen() {
 			lines[msg.level] = std::move(msg.str);
 
 			// and draw
-
-			// TODO: implement move_cursor_up
-			// let mut out = String::new();
-			// if(!first) {
-			//	out += &move_cursor_up(nlines);
-			//} else {
-			//	first = false;
-			//}
-
-			for(auto && l : lines)
-				*output << '\r' << l << '\n';
+			if(needs_moving)
+				*output << pb::util::move_cursor_up(lines.size());
+			for(auto i = 0u; i < lines.size(); ++i)
+				*output << '\r' << lines[i] << '\n';
+			needs_moving = true;
 		}
 	}
 }

@@ -26,9 +26,10 @@
 #include <condition_variable>
 #include <cstdint>
 #include <mutex>
-#include <queue>
 #include <nonstd/optional.hpp>
 #include <ostream>
+#include <queue>
+#include <string>
 
 
 namespace pb {
@@ -42,6 +43,13 @@ namespace pb {
 		std::ostream & operator<<(std::ostream & out, human_readable hr);
 		human_readable make_human_readable(std::size_t size);
 
+
+		/// Move the cursor up by the specified amount of lines.
+		struct cursor_up_mover {
+			std::size_t by;
+		};
+		std::ostream & operator<<(std::ostream & out, cursor_up_mover cum);
+		cursor_up_mover move_cursor_up(std::size_t by);
 
 		/// Get the terminal window's width or `nullopt` in case of error or stdout not being tied to terminal.
 		nonstd::optional<std::size_t> terminal_width();
@@ -57,14 +65,14 @@ namespace pb {
 			std::queue<T> msgs;
 
 		public:
-			mpsc() = default;
+			mpsc()        = default;
 			mpsc(mpsc &&) = default;
 
 			/// Lock and check if the queue has no elements in it.
 			bool empty();
 
 			/// Lock and add an element to the end of the queue and notify a listener.
-			void push(const T& elem);
+			void push(const T & elem);
 			void push(T && elem);
 			template <class... Args>
 			void emplace(Args &&... args);

@@ -3,8 +3,6 @@ Console progress bar for C++ inspired by [pb](https://github.com/a8m/pb).
 
 ## Examples
 
-TODO: adapt multibar to C++
-
 1. Simple example
 
 ```cpp
@@ -26,44 +24,33 @@ int main() {
 }
 ```
 
-2. MultiBar example. see full example [here](https://github.com/a8m/pb/blob/master/examples/multi.rs)
-```rust
-extern crate pbr;
+2. `pb::multibar` example, see full example [here](examples/multi.cpp):
+```cpp
+#include <pb-cpp/multibar.hpp>
+#include <thread>
+using namespace std::literals;
 
-use std::thread;
-use pbr::MultiBar;
-use std::time::Duration;
-
-fn main() {
-	let mut mb = MultiBar::new();
-	let count = 100;
+int main() {
+	const auto count = 100u;
+	pb::multibar mb;
 	mb.println("Application header:");
 
-	let mut p1 = mb.create_bar(count);
-	let _ = thread::spawn(move || {
-		for _ in 0..count {
-			p1.inc();
-			thread::sleep(Duration::from_millis(100));
+	const auto bar_handler = [](auto bar, auto count) {
+		for(auto i = 0u; i < count; ++i) {
+			++bar;
+			std::this_thread::sleep_for(100ms);
 		}
-		// notify the multibar that this bar finished.
-		p1.finish();
-	});
 
-	mb.println("add a separator between the two bars");
+		bar.finish();
+	};
 
-	let mut p2 = mb.create_bar(count * 2);
-	let _ = thread::spawn(move || {
-		for _ in 0..count * 2 {
-			p2.inc();
-			thread::sleep(Duration::from_millis(100));
-		}
-		// notify the multibar that this bar finished.
-		p2.finish();
-	});
+	std::thread(bar_handler, mb.create_bar(count), count).detach();
+	mb.println("Add a separator between the two bars");
+	std::thread(bar_handler, mb.create_bar(count * 2), count * 2).detach();
 
-	// start listen to all bars changes.
-	// this is a blocking operation, until all bars will finish.
-	// to ignore blocking, you can run it in a different thread.
+	// Start listening to all bars' changes.
+	// This blocks until all bars finish.
+	// To ignore that, run it in a different thread.
 	mb.listen();
 }
 ```

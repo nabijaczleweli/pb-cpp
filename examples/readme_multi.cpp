@@ -20,35 +20,30 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "../../include/pb-cpp/util.hpp"
-#include <cmath>
+#include <pb-cpp/multibar.hpp>
+#include <thread>
+using namespace std::literals;
 
+int main() {
+	const auto count = 100u;
+	pb::multibar mb;
+	mb.println("Application header:");
 
-std::ostream & pb::util::operator<<(std::ostream & out, human_readable hr) {
-	static const auto ln_kib       = std::log(1024.);
-	static const char * suffixes[] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
+	const auto bar_handler = [](auto bar, auto count) {
+		for(auto i = 0u; i < count; ++i) {
+			++bar;
+			std::this_thread::sleep_for(100ms);
+		}
 
+		bar.finish();
+	};
 
-	if(hr.size == 0)
-		out << "0 B";
-	else {
-		const auto exp = std::min(std::max(static_cast<std::size_t>(std::log(static_cast<double>(hr.size)) / ln_kib), static_cast<std::size_t>(0)),
-		                          sizeof(suffixes) / sizeof(*suffixes));
-		const auto val = static_cast<double>(hr.size) / std::pow(2., exp * 10);
+	std::thread(bar_handler, mb.create_bar(count), count).detach();
+	mb.println("Add a separator between the two bars");
+	std::thread(bar_handler, mb.create_bar(count * 2), count * 2).detach();
 
-		if(exp > 0)
-			out << std::round(val * 10.) / 10. << ' ' << suffixes[static_cast<std::size_t>(exp)];
-		else
-			out << std::round(val) << ' ' << suffixes[0];
-	}
-
-	return out;
-}
-
-pb::util::human_readable pb::util::make_human_readable(std::size_t size) {
-	return {size};
-}
-
-pb::util::cursor_up_mover pb::util::move_cursor_up(std::size_t by) {
-	return {by};
+	// Start listening to all bars' changes.
+	// This blocks until all bars finish.
+	// To ignore that, run it in a different thread.
+	mb.listen();
 }
