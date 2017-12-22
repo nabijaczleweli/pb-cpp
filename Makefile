@@ -31,7 +31,7 @@ BUILD_TEST_SOURCES := $(sort $(wildcard build-tests/*.cpp build-tests/**/*.cpp b
 EXAMPLE_SOURCES := $(sort $(wildcard examples/*.cpp examples/**/*.cpp examples/**/**/*.cpp examples/**/**/**/*.cpp))
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 
-.PHONY : all clean static dll tests no-build-tests examples run-tests
+.PHONY : all clean static dll tests no-build-tests examples run-tests run-examples
 
 all : static dll tests no-build-tests examples run-tests
 
@@ -46,6 +46,7 @@ dll : $(OUTDIR)$(DLL_PREFIX)pb-cpp$(DLL)
 tests : $(OUTDIR)pb-cpp-tests$(EXE)
 no-build-tests : $(patsubst build-tests/%.cpp,$(BLDDIR)build_test_obj/%$(OBJ),$(BUILD_TEST_SOURCES))
 examples : $(patsubst examples/%.cpp,$(XPLDIR)%$(EXE),$(EXAMPLE_SOURCES))
+run-examples : $(patsubst examples/%.cpp,run#$(XPLDIR)%$(EXE),$(EXAMPLE_SOURCES))
 
 
 $(OUTDIR)libpb-cpp$(ARCH) : $(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%$(OBJ),$(SOURCES))
@@ -74,4 +75,7 @@ $(BLDDIR)build_test_obj/%$(OBJ) : build-tests/%.cpp
 
 $(XPLDIR)%$(EXE) : examples/%.cpp $(patsubst $(SRCDIR)%.cpp,$(OBJDIR)%$(OBJ),$(SOURCES))
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXAR) $(INCAR) -Iinclude -o$@ $^ $(LDAR)
+	$(CXX) $(CXXAR) $(INCAR) -Iinclude -o$@ $^ $(LDAR) -lpthread
+
+run\#$(XPLDIR)%$(EXE) : $(XPLDIR)%$(EXE)
+	$^

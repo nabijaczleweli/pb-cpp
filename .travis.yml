@@ -49,4 +49,6 @@ matrix:
 install:
   - git submodule update --init --recursive
 
-script: make
+script:
+  - make
+  - make run-examples

@@ -32,8 +32,7 @@ using namespace std::literals;
 
 static thread_local std::mt19937 rng(std::random_device{}());
 
-
-std::string rand_string();
+static std::string rand_string();
 
 
 int main() {

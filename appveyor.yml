@@ -18,6 +18,7 @@ build: off
 build_script:
   - git submodule update --init --recursive
   - make
+  - make run-examples
 
 test: off
 
