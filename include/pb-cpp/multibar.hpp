@@ -72,6 +72,12 @@ namespace pb {
 		std::shared_ptr<pb::util::mpsc<pb::detail::multibar_write_message>> chan;
 
 	public:
+		/// Whether to hide the cursor during `listen()` to avoid it flashing.
+		///
+		/// Default: true.
+		bool hide_cursor;
+
+
 		/// Empty multibar to the standard output.
 		explicit multibar();
 

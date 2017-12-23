@@ -26,6 +26,7 @@
 #include "../../include/pb-cpp/util.hpp"
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <iostream>
 #include <unistd.h>
 
 
@@ -42,8 +43,19 @@ nonstd::optional<std::size_t> pb::util::terminal_width() {
 }
 
 std::ostream & pb::util::operator<<(std::ostream & out, cursor_up_mover cum) {
-	out << "\x1B[" << cum.by << +"A";
+	out << "\x1B[" << cum.by << "A";
 	return out;
+}
+
+void pb::util::cursor_hide::hide() {
+	if(!(actually = isatty(STDOUT_FILENO)))
+		return;
+
+	std::cout << "\x1b[?25l";
+}
+
+void pb::util::cursor_hide::restore() const {
+	std::cout << "\x1b[?25h";
 }
 
 

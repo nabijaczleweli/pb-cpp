@@ -27,7 +27,7 @@
 
 pb::multibar::multibar() : multibar(std::cout) {}
 
-pb::multibar::multibar(std::ostream & o) : output(std::addressof(o)), chan(std::make_shared<pb::util::mpsc<pb::detail::multibar_write_message>>()) {}
+pb::multibar::multibar(std::ostream & o) : output(std::addressof(o)), chan(std::make_shared<pb::util::mpsc<pb::detail::multibar_write_message>>()), hide_cursor(true) {}
 
 
 void pb::multibar::println() {
@@ -55,6 +55,7 @@ pb::progressbar pb::multibar::create_bar(std::size_t total) {
 void pb::multibar::listen() {
 	auto needs_moving = false;
 	auto nbars        = bar_pipes.size();
+	pb::util::cursor_hide cursor_hider(hide_cursor);
 	while(nbars) {
 		// receive message
 		chan->wait();

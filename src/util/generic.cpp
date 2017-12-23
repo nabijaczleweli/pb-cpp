@@ -52,3 +52,13 @@ pb::util::human_readable pb::util::make_human_readable(std::size_t size) {
 pb::util::cursor_up_mover pb::util::move_cursor_up(std::size_t by) {
 	return {by};
 }
+
+pb::util::cursor_hide::cursor_hide(bool a) : actually(a) {
+	if(actually)
+		hide();
+}
+
+pb::util::cursor_hide::~cursor_hide() {
+	if(actually)
+		restore();
+}

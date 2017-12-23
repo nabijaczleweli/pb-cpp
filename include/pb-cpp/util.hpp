@@ -31,6 +31,14 @@
 #include <queue>
 #include <string>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 
 namespace pb {
 	namespace util {
@@ -50,6 +58,22 @@ namespace pb {
 		};
 		std::ostream & operator<<(std::ostream & out, cursor_up_mover cum);
 		cursor_up_mover move_cursor_up(std::size_t by);
+
+		/// Optionally hide a cursor and restore it at end of scope.
+		class cursor_hide {
+		private:
+			bool actually;
+#ifdef _WIN32
+			CONSOLE_CURSOR_INFO original;
+#endif
+
+			void hide();
+			void restore() const;
+
+		public:
+			cursor_hide(bool hide = true);
+			~cursor_hide();
+		};
 
 		/// Get the terminal window's width or `nullopt` in case of error or stdout not being tied to terminal.
 		nonstd::optional<std::size_t> terminal_width();

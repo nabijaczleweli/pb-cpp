@@ -25,12 +25,6 @@
 
 #include "../../include/pb-cpp/util.hpp"
 
-#define WIN32_LEAN_AND_MEAN
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-
 
 struct handle_data {
 	HANDLE handle;
@@ -55,6 +49,23 @@ std::ostream & pb::util::operator<<(std::ostream & out, cursor_up_mover cum) {
 		SetConsoleCursorPosition(handle->handle, handle->csbi.dwCursorPosition);
 	}
 	return out;
+}
+
+void pb::util::cursor_hide::hide() {
+	const auto hand = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	// Don't try to restore if failed
+	if(!(actually = GetConsoleCursorInfo(hand, &original)))
+		return;
+
+	auto new_cci     = original;
+	new_cci.bVisible = FALSE;
+
+	actually = SetConsoleCursorInfo(hand, &new_cci);
+}
+
+void pb::util::cursor_hide::restore() const {
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &original);
 }
 
 
