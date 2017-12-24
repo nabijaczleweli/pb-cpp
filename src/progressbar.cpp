@@ -182,7 +182,7 @@ void pb::progressbar::max_refresh_rate() {
 
 
 void pb::progressbar::tick() {
-	if(current <= total) {
+	if(!total || current <= total) {
 		if(!tick_chars.empty())
 			cur_tick_idx = (cur_tick_idx + 1) % tick_chars.size();
 		draw();
@@ -258,10 +258,14 @@ void pb::progressbar::draw() {
 	if(show_counter) {
 		switch(unit) {
 			case unit_t::none:
-				additional_prefix << current << " / " << total;
+				additional_prefix << current;
+				if(total)
+					additional_prefix << " / " << total;
 				break;
 			case unit_t::byte:
-				additional_prefix << pb::util::make_human_readable(current) << " / " << pb::util::make_human_readable(total);
+				additional_prefix << pb::util::make_human_readable(current);
+				if(total)
+					additional_prefix << " / " << pb::util::make_human_readable(total);
 				break;
 		}
 		additional_prefix << ' ';
@@ -274,7 +278,7 @@ void pb::progressbar::draw() {
 		*output << tick_chars[cur_tick_idx] << ' ';
 
 	// precent box
-	if(show_percent) {
+	if(show_percent && total) {
 		const auto percentage = total == 0 ? 0 : ((100 * current) / total);
 		suffix << ' ' << std::setw(2) << percentage << "% ";
 	}
