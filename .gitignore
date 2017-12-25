@@ -3,6 +3,8 @@
 !ext/**
 !src
 !src/**
+!demo
+!demo/**
 !include
 !include/**
 !tests

@@ -1,6 +1,8 @@
 # Terminal progress bar for C++ [![TravisCI Build Status](https://travis-ci.org/nabijaczleweli/pb-cpp.svg?branch=master)](https://travis-ci.org/nabijaczleweli/pb-cpp) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/7c1ghw38fowefi3s/branch/master?svg=true)](https://ci.appveyor.com/project/nabijaczleweli/pb-cpp/branch/master) [![Licence](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 Console progress bar for C++ inspired by [pb](https://github.com/a8m/pb).
 
+[![Poster for demo video](demo/pb-cpp%20demo%20small.png)](https://raw.githubusercontent.com/nabijaczleweli/pb-cpp/master/demo/pb-cpp%20demo%20small.mp4)
+
 ## Examples
 
 1. Simple example

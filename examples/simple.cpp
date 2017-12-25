@@ -32,7 +32,7 @@ int main() {
 
 	const auto count = 500u;
 	pb::progressbar bar(count);
-	bar.format("╢▌▌░╟");
+	bar.format("\xB9\xDB\xB2\xB0\xCC");
 
 	for(auto i = 0u; i < count; ++i, ++bar)
 		std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng)));
