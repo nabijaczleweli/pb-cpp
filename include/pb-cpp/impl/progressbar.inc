@@ -34,7 +34,7 @@ void pb::progressbar::tick_format(FwdItr begin, FwdItr end) {
 
 template <class Dur>
 void pb::progressbar::max_refresh_rate(const Dur & rate) {
-	const auto cdur = std::chrono::duration_cast<std::decay_t<decltype(*bar_max_refresh_rate)>>(rate);
+	const auto cdur = std::chrono::duration_cast<std::decay<decltype(*bar_max_refresh_rate)>::type>(rate);
 
 	bar_max_refresh_rate = {cdur};
 	last_refresh_time -= cdur;
