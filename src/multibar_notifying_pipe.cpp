@@ -29,7 +29,7 @@
 //!
 //! Second, Rust has a much simpler I/O model, consisting of two functions instead of fifty.
 //!
-//! But that means that the Rust version colludes all writes, which inhibits performace.
+//! But that means that the Rust version colludes all writes, which inhibits performance.
 //!
 //! So, in this wonderful piece of code (tm) we override `streambuf::sync()`,
 //! which, if cppreference isn't lying to me, is the function called on `ostream::flush()`.
@@ -58,6 +58,6 @@ int pb::detail::multibar_notifying_pipe::multibar_notifying_streambuf::sync() {
 }
 
 pb::detail::multibar_notifying_pipe::multibar_notifying_pipe(std::size_t l, const std::shared_ptr<pb::util::mpsc<pb::detail::multibar_write_message>> & c)
-      : buf(l, c) {
+      : std::ostream(nullptr), buf(l, c) {
 	init(&buf);
 }
